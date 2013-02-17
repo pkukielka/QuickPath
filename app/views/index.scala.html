@@ -21,9 +21,25 @@
             <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
         <![endif]-->
 
-        <p>QuickPath!</p>
+        <div id="blocker">
+            <div id="instructions">
+                <span style="font-size:40px">Click to play</span>
+            </div>
+        </div>
 
         <script src="@routes.Assets.at("javascripts/plugins.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/vendor/three.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/vendor/RequestAnimationFrame.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/vendor/Detector.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/vendor/Stats.min.js")" type="text/javascript"></script>
+
+        <script src="@routes.Assets.at("javascripts/PointerLock.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/Scene.js")" type="text/javascript"></script>
+
+        <script>
+            var scene = new Scene();
+            scene.animate();
+        </script>
 
         <script>
             var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];

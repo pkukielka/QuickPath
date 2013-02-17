@@ -11,10 +11,16 @@ textarea {
 }
 
 body {
+    background-color: #000000;
+    margin: 0px;
+    overflow: hidden;
+    font-family:Monospace;
     font-size: 1em;
     line-height: 1.4;
+    text-align:center;
+    font-weight: bold;
+    text-align:center;
 }
-
 ::-moz-selection {
     background: #b3d4fc;
     text-shadow: none;
@@ -60,19 +66,40 @@ textarea {
    Author's custom styles
    ========================================================================== */
 
+#blocker {
+    position: absolute;
 
+    width: 100%;
+    height: 100%;
 
+    background-color: rgba(0,0,0,0.5);
+}
 
+#instructions {
+    width: 100%;
+    height: 100%;
 
+    display: -webkit-box;
+    display: -moz-box;
+    display: box;
 
+    -webkit-box-orient: horizontal;
+    -moz-box-orient: horizontal;
+    box-orient: horizontal;
 
+    -webkit-box-pack: center;
+    -moz-box-pack: center;
+    box-pack: center;
 
+    -webkit-box-align: center;
+    -moz-box-align: center;
+    box-align: center;
 
+    color: #ffffff;
+    text-align: center;
 
-
-
-
-
+    cursor: pointer;
+}
 
 /* ==========================================================================
    Media Queries
