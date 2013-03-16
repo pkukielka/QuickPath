@@ -26,10 +26,14 @@ class Scene
       () => instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API'
     )
 
-    pointerLock.onMouseMove(@particleSize, @particleSize * 1.5, (position) =>
-      @trail.moveTo(position)
-      @trail.collide(position)
+    @ws = new Websocket((event) =>
+      msg = JSON.parse(event.data)
+      pos = new THREE.Vector3(msg.x, msg.y, msg.z)
+      @trail.moveTo(pos)
+      @trail.collide(pos)
     )
+
+    pointerLock.onMouseMove(@particleSize, @particleSize * 1.5, (position) => @ws.send(position))
 
     instructions.addEventListener('click', (event) => pointerLock.lockPointer())
 

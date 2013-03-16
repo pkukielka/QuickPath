@@ -29,7 +29,7 @@ class ParticleMaterial
     gradient.addColorStop(0, 'rgba(255,255,255,0.9)')
     gradient.addColorStop(0.2, 'rgba(255,255,255,0.6)')
     gradient.addColorStop(0.4, 'rgba(200,200,200,0.8)')
-    gradient.addColorStop(1, 'rgba(100,100,100,0)')
+    gradient.addColorStop(1, 'rgba(100,100,100,0.5)')
 
     context.fillStyle = gradient
     context.fill()

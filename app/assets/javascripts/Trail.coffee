@@ -3,9 +3,10 @@ class Trail
     @geometry   = new THREE.Geometry
     @material   = new ParticleMaterial().generate(color)
     @vertices   = @geometry.vertices               = (new THREE.Vector3(0, 0, 0) for [1..@allParticles])
-    @alpha      = @material.attributes.alpha.value = (1.0                        for [1..@allParticles])
+    @alpha      = @material.attributes.alpha.value = (0.0                        for [1..@allParticles])
     @size       = @material.attributes.size.value  = (@defaultParticleSize       for [1..@allParticles])
 
+    @moveTo(new THREE.Vector3(0, 0, 0))
     @particles  = new THREE.ParticleSystem(@geometry, @material)
 
   pushFront: (array, elem) ->
