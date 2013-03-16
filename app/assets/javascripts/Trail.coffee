@@ -29,7 +29,7 @@ class Trail
     @material.attributes.alpha.needsUpdate = true
 
     for i in [1...@allParticles]
-      if @vertices[i].isExploding?
+      if @vertices[i].isExploding? and @alpha[i] > 0.0
         @alpha[i] -= 0.05
         @size[i]  *= 1.05
         if @vertices[i - 1].shouldExplode? then @vertices[i - 1].mark = true

@@ -16,24 +16,17 @@ class Scene
     @stats.domElement.style.top      = '5px'
     @stats.domElement.style.left     = '5px'
 
-    @particleSize = 4
-    @trail = new Trail(50, 4, new THREE.Color(0xFF1493))
-    @scene.add(@trail.particles)
-
     pointerLock = new PointerLock(
       () => blocker.style.display  = 'none'
       () => blocker.style.display  = 'block'
       () => instructions.innerHTML = 'Your browser doesn\'t seem to support Pointer Lock API'
     )
 
-    @ws = new Websocket((event) =>
-      msg = JSON.parse(event.data)
-      pos = new THREE.Vector3(msg.x, msg.y, msg.z)
-      @trail.moveTo(pos)
-      @trail.collide(pos)
-    )
+    @particleSize = 4
+    @players = new Players(50, @particleSize, @scene)
+    @ws = new Websocket(@players.updateFromServer)
 
-    pointerLock.onMouseMove(@particleSize, @particleSize * 1.5, (position) => @ws.send(position))
+    pointerLock.onMouseMove(@particleSize, @particleSize * 1.5, @ws.send)
 
     instructions.addEventListener('click', (event) => pointerLock.lockPointer())
 
@@ -44,4 +37,4 @@ class Scene
     requestAnimationFrame(@animate)
     @renderer.render(@scene, @camera)
     @stats.update()
-    @trail.update()
+    @players.update()
