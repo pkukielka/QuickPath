@@ -1,13 +1,16 @@
 class PointerLock
   constructor: (onLock, onUnlock, onFailue) ->
     @havePointerLock = 'pointerLockElement' of document ||'mozPointerLockElement' of document || 'webkitPointerLockElement' of document
+    @isLocked = false
 
     if @havePointerLock
-      pointerLockChange = ->
+      pointerLockChange = =>
         body = document.body
         if document.pointerLockElement == body || document.mozPointerLockElement == body || document.webkitPointerLockElement == body
+          @isLocked = true
           onLock()
         else
+          @isLocked = false
           onUnlock()
 
       document.addEventListener('pointerlockchange', pointerLockChange, false)
@@ -34,3 +37,21 @@ class PointerLock
         body.requestFullscreen()
       else
         body.requestPointerLock()
+
+  onMouseMove: (minOffset, maxOffset, callback) ->
+    pos = new THREE.Vector3(0, 0, 0)
+    mov = new THREE.Vector3(0, 0, 0)
+    $(document).mousemove =>
+      if @isLocked
+        mov.addSelf(new THREE.Vector3(
+          (event.movementX || event.mozMovementX || event.webkitMovementX || 0) / 10,
+          -(event.movementY || event.mozMovementY || event.webkitMovementY || 0) / 10,
+          0
+        ))
+
+        if mov.length() > maxOffset
+          mov.normalize().multiplyScalar(maxOffset)
+
+        if mov.length() > minOffset
+          callback(pos.addSelf(mov).clone())
+          mov.set(0, 0, 0)
