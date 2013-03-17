@@ -1,7 +1,6 @@
 package models
 
-import akka.actor.Actor
-import akka.actor.Props
+import akka.actor.{ActorRef, Actor, Props}
 import akka.pattern.ask
 import akka.util.Timeout
 
@@ -10,7 +9,6 @@ import scala.concurrent.duration._
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.iteratee._
 import play.api.libs.json._
-import play.api.Play.current
 import play.libs.Akka
 
 sealed abstract class ServerMessage
@@ -42,7 +40,7 @@ object Server {
 }
 
 class Server extends Actor {
-  var players = Map.empty[String, Concurrent.Channel[JsValue]]
+  var players = Map.empty[String, ActorRef]
   var id: Int = 0
 
   def receive = {
@@ -50,17 +48,11 @@ class Server extends Actor {
       sender ! {id += 1; id}
 
     case Join(username, channel) =>
-      players = players + (username -> channel)
+      val playerActorRef = context.actorOf(Props(new Player(username, channel)), name = username)
+      players = players + (username -> playerActorRef)
 
-    case Event(username, event) =>
-      players.values.foreach(_.push(
-        Json.obj(
-          "username" -> username,
-          "x" -> (event \ "x"),
-          "y" -> (event \ "y"),
-          "z" -> (event \ "z")
-        )
-      ))
+    case e: Event =>
+      players.values.foreach(_ ! e)
 
     case Quit(username) =>
       players = players - username
