@@ -39,7 +39,7 @@ class Trail
       if @vertices[i].mark? then @vertices[i].isExploding = true
 
   collide: (startPoint) ->
-    for i in [1...@allParticles]
+    for i in [0...@allParticles]
       if startPoint.distanceTo(@vertices[i]) <= @defaultParticleSize and @alpha[i] > 0.0
         @vertices[i].isExploding = true
         for j in [1...@allParticles]

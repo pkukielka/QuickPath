@@ -10,19 +10,30 @@ class Players
     r = ('0'+(Math.random()*256|0).toString(16)).slice(-2)
     g = ('0'+(Math.random()*256|0).toString(16)).slice(-2)
     b = ('0'+(Math.random()*256|0).toString(16)).slice(-2)
-    '0x' + r + g + b
+    r + g + b
 
-  updateFromServer: (e) =>
-    data     = JSON.parse(e.data)
+  updateFromServer: (data) =>
     username = data.username
-    position = new THREE.Vector3(data.x, data.y, data.z)
 
-    if username not of @players
-      @players[username] = new Trail(@allParticles, @defaultParticleSize, new THREE.Color(@randColor()))
-      @scene.add(@players[username].particles)
+    if data.type == "Move"
+      position = new THREE.Vector3(data.x, data.y, data.z)
+      if username not of @players
+        color = @randColor()
+        @players[username] = new Trail(@allParticles, @defaultParticleSize, new THREE.Color('0x' + color))
+        @players[username].color = color
+        @players[username].score = 0
+        @scene.add(@players[username].particles)
 
-    @players[username].moveTo(position)
+      @players[username].moveTo(position)
 
-    for name, model of @players
-      if name != username
-        model.collide(position)
+
+    if data.type == "Collision"
+      position = new THREE.Vector3(data.x, data.y, data.z)
+      @players[username].collide(position)
+
+    if data.type == "UpdateScore"
+      @players[username].score = data.score
+
+      score.innerHTML = ""
+      for username, model of @players
+        score.innerHTML += "<div style='background-color: #" +  model.color + "'>Score: " +  model.score + "</div>"

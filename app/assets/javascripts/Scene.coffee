@@ -24,7 +24,15 @@ class Scene
 
     @particleSize = 4
     @players = new Players(50, @particleSize, @scene)
-    @ws = new Websocket(@players.updateFromServer)
+    @squares = new Squares(@scene)
+
+    @ws = new Websocket((e) =>
+      data = JSON.parse(e.data)
+      if data.type == "UpdateSquare" or data.type == "RemoveSquare"
+        @squares.updateFromServer(data)
+      else
+        @players.updateFromServer(data)
+    )
 
     pointerLock.onMouseMove(@particleSize, @particleSize * 1.5, @ws.send)
 
