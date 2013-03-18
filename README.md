@@ -2,6 +2,7 @@ QuickPath
 =========
 
 Simple MMO game made with Scala, Akka, Play!, WebSockets, CoffeeScript and Three.js
+[Try it now] (li189-73.members.linode.com)
 
 Rules are very simple:
 
