@@ -1,0 +1,222 @@
+\documentclass{beamer}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{color}
+\usetheme{Warsaw}
+\setbeamercovered{invisible}
+%\usepackage{bm}         % For typesetting bold math (not \mathbold)
+%\logo{\includegraphics[height=0.6cm]{yourlogo.eps}}
+\title{Browser-based MMO Game with Akka and Play!}
+%\subtitle{In one hour}
+\author{Piotr Kukielka}
+\date{\today}
+
+% "define" Scala
+\lstdefinelanguage{scala}{
+  morekeywords={abstract,case,catch,class,def,%
+    do,else,extends,false,final,finally,%
+    for,if,implicit,import,match,mixin,%
+    new,null,object,override,package,%
+    private,protected,requires,return,sealed,%
+    super,this,throw,trait,true,try,%
+    Async, Action,%
+    type,val,var,while,with,yield},
+  otherkeywords={=>,<-,<\%,<:,>:,\#,@},
+  sensitive=true,
+  morecomment=[l]{//},
+  morecomment=[n]{/*}{*/},
+  morestring=[b]",
+  morestring=[b]',
+  morestring=[b]"""
+}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+% Default settings for code listings
+\lstset{frame=tb,
+  language=scala,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  frame=single,
+  breaklines=true,
+  breakatwhitespace=true
+  tabsize=3
+}
+
+\begin{document}
+
+\begin{frame}
+	\titlepage
+\end{frame}
+
+\begin{center}
+	\tableofcontents
+\end{center}
+
+\section{Introduction}
+	\subsection{What are we building?}
+		\begin{frame}
+			\begin{center}
+					\includegraphics[scale=0.19]{gameplay}
+
+					Source code: https://github.com/pkukielka/QuickPath
+			\end{center}
+		\end{frame}
+
+	\subsection{About Play}
+		\begin{frame}
+			\begin{block}{Why Play?}
+				\begin{itemize}
+					\item Nice integration with Akka
+					\pause \item Out of the box support for WebSockets and streams
+					\pause \item Embedded support for various assets (i.e. CoffeeScript, LESS)
+					\pause \item Simplified change-compile-run cycle
+					\pause \item Easy to work with Json
+				\end{itemize}
+			\end{block}
+		\end{frame}
+		\begin{frame}
+			\begin{block}{Build system}
+				\begin{itemize}
+					\item Play console, sbt
+				\end{itemize}
+			\end{block}
+			\begin{block}{Project structure - standard application layout}
+				\begin{itemize}
+					\pause \item MVC architecture (app/ directory)
+					\pause \item Resources (public/ directory)
+					\pause \item Configuration (conf/ directory)
+					\pause \item Unmanaged library dependencies (lib/ directory)
+					\pause \item Build definitions (project/ directory)
+					\pause \item Output files (target/ directory)
+					\pause \item Tests (test/ directory)
+					\pause \item Logs (log/ directory)
+				\end{itemize}
+			\end{block}
+		\end{frame}
+
+\section{Async in Play}
+	\subsection{AsyncResult}
+		\begin{frame}[fragile]
+			Expensive tasks should be performed in separate threads using Future[Result].
+			Async \{ \} is an helper method that builds an AsyncResult from a Future[Result].
+
+
+			\begin{lstlisting}
+				def index = Action {
+				  val futureInt = scala.concurrent.Future { intensiveComputation() }
+				  Async {
+				    futureInt.map(i => Ok("Got result: " + i))
+				  }
+				}
+			\end{lstlisting}
+		\end{frame}
+
+	\subsection{WebSockets and Comet}
+		\begin{frame}[fragile]
+			Use WebSockets instead of Comet when possible!
+
+			\begin{lstlisting}
+				def index = WebSocket.using[String] { request =>
+				  // Log events to the console
+				  val in = Iteratee.foreach[String](println).mapDone {
+				    _ => println("Disconnected")
+				  }
+
+				  // Send a single 'Hello!' message
+				  val out = Enumerator("Hello!")
+
+				  (in, out)
+				}
+			\end{lstlisting}
+
+			\pause Let's see it in practice!
+		\end{frame}
+
+\section{Iteratees, Enumerators and Enumeratees}
+	\subsection{Iteratees}
+		\begin{frame}[fragile]
+			What iteratee do?
+			\begin{itemize}
+				\pause \item iterate over an Enumerator (iteratee is consumer)
+				\pause \item accept static typed chunks and compute a static typed result (chunk by chunk)
+				\pause \item can propagate the immutable context and state over iterations
+			\end{itemize}
+
+			\pause \begin{lstlisting}
+				val sum: Iteratee[Int,Int] =
+			    Iteratee.fold[Int,Int](0) { (s, e) => s + e }
+			\end{lstlisting}
+
+			\pause \begin{block}{Different look..}
+				Iteratee is just a state machine in charge of looping over state Cont until it detects conditions to switch to terminal states Done or Error.
+			\end{block}
+		\end{frame}
+
+	\subsection{Enumerators}
+		\begin{frame}[fragile]
+			What iteratee do?
+			\begin{itemize}
+				\pause \item produces statically typed chunks of data
+				\pause \item requires a consumer to produce
+			\end{itemize}
+
+			\pause \begin{lstlisting}
+				val integerEnumerator: Enumerator[Int] =
+				  Enumerate(45, 33, 25, 45)
+
+				val fileEnumerator: Enumerator[Array[Byte]] =
+				  Enumerator.fromFile("some_file.txt")
+
+				val dateGenerator: Enumerator[String] =
+					Enumerator.generateM(
+					  play.api.libs.concurrent.Promise.timeout(
+					    Some(12345),
+					    500
+					  )
+					)
+			\end{lstlisting}
+		\end{frame}
+
+	\subsection{Enumeratees}
+		\begin{frame}[fragile]
+			Enumeratee is kind of pipe between between Enumerator and Iteratee.
+			\begin{itemize}
+				\pause \item it can be applied to an Enumerator without Iteratee
+				\pause \item it can transform an Iteratee
+				\pause \item it can be composed with other Enumeratee
+			\end{itemize}
+
+			\pause \begin{lstlisting}
+				val enumerator = Enumerator(123, 345, 456)
+				val iteratee: Iteratee[String, List[String]] = ???
+
+				val list: List[String] =
+				  enumerator through Enumeratee.map(_.toString) run iteratee
+			\end{lstlisting}
+
+		\end{frame}
+
+\section{Coding!}
+	\subsection{Coding!}
+		\begin{frame}
+			\begin{block}{What now?}
+				\begin{itemize}
+					\pause \item Iteratees with WebSockets in practice
+					\pause \item Communication between multiple actors with Akka
+					\pause \item Json serialization/deserialization
+				\end{itemize}
+			\end{block}
+		\end{frame}
+
+\end{document}
