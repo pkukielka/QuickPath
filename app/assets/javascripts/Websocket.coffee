@@ -7,7 +7,7 @@ class Websocket
 
   connect: ->
     try
-      @socket = new WebSocket("ws://" + location.host + "/stream")
+      @socket = new WebSocket(jsRoutes.controllers.Application.stream().webSocketURL())
 
       @socket.onmessage =
         @onMessage
