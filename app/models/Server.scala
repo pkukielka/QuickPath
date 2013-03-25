@@ -39,6 +39,7 @@ class Server extends Actor {
   val squares = context.actorOf(Props[Squares], name = "Squares")
   var id: Int = 0
 
+  // Values lower than 100 ms won't work unless you will change schedule.tick-duration property in the Akka config
   Akka.system.scheduler.schedule(0 seconds, 100 milliseconds) {
     squares ! UpdateSquares()
   }
