@@ -16,6 +16,7 @@ class Player(username: String, channel: Concurrent.Channel[JsValue]) extends Act
 
   def receive = {
     case Collision(senderName, pos) =>
+      trail = trail.take(1)
       channel.push(Json.obj("type" -> "Collision", "username" -> senderName, "x" -> pos.x, "y" -> pos.y, "z" -> pos.z))
 
     case UpdateSquare(id, size, x, y, color) =>
@@ -43,11 +44,8 @@ class Player(username: String, channel: Concurrent.Channel[JsValue]) extends Act
         }
         trail = (pos :: trail).take(Player.allParticles)
       }
-      else {
-        if (isColliding(pos)) {
-          trail = trail.take(1)
-          context.actorFor("../") ! Collision(username, pos)
-        }
+      else if (isColliding(pos)) {
+        context.actorFor("../") ! Collision(username, pos)
       }
   }
 
