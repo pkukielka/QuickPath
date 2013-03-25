@@ -45,7 +45,9 @@ class Server extends Actor {
 
   def receive = {
     case GetUniqueId() =>
-      sender ! {id += 1; id}
+      id = id + 1
+      val currentId = id
+      sender ! currentId
 
     case Join(username, channel) =>
       val playerActorRef = context.actorOf(Props(new Player(username, channel)), name = username)
