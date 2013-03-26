@@ -15,7 +15,7 @@ case class GrowingSquare(id: Int) {
 
   def getSize = size.toInt + Player.particleSize
   def getModel: Rectangle = new Rectangle(x - (getSize / 2), y - (getSize / 2), getSize, getSize)
-  def getMaxModel: Rectangle = new Rectangle(x - (maxSize / 2), y - (maxSize / 2), maxSize, maxSize)
+  def getMaxModel: Rectangle = new Rectangle(x - (maxSize / 2), y - (maxSize / 2), maxSize + 2 * Player.particleSize, maxSize + 2 * Player.particleSize)
   def update {
     if (size > maxSize || size < minSize) {
       delta = -delta
@@ -52,8 +52,9 @@ class Squares extends Actor {
       if (squares.size < 30) {
         val square = new GrowingSquare(id)
 
-        if (squares.find(_.getModel.intersects(square.getModel)).isEmpty)
+        if (squares.find { sq => sq.getMaxModel.intersects(square.getMaxModel) && sq.color != square.color }.isEmpty) {
           squares = square :: squares
+        }
 
         id += 1
       }
