@@ -44,8 +44,8 @@ class PointerLock
     $(document).mousemove =>
       if @isLocked
         mov.addSelf(new THREE.Vector3(
-          (event.movementX || event.mozMovementX || event.webkitMovementX || 0) / 10,
-          -(event.movementY || event.mozMovementY || event.webkitMovementY || 0) / 10,
+          (event.movementX || event.mozMovementX || event.webkitMovementX || 0) / 5,
+          -(event.movementY || event.mozMovementY || event.webkitMovementY || 0) / 5,
           0
         ))
 
